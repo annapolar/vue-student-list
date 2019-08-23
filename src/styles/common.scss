@@ -1,0 +1,42 @@
+@import "./variables";
+@import "./reset";
+@import "~aos/dist/aos.css";
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+  background-color: #F8F9F9;
+}
+
+/* ---------------------- Mixin ------------------------ */
+@mixin size($w, $h: $w) {
+  width: $w;
+  height: $h;
+}
+@mixin flexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+@mixin linkStyle($size, $weight) {
+  cursor: pointer;
+  transition: 0.5s;
+  font-size: $size;
+  font-weight: $weight;
+}
+@mixin fontStyle($size, $weight, $line-height) {
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $line-height;
+}
+
+/* ---------------------- Typograph ------------------------ */
+h2 {
+  @include fontStyle(38px, 400, 56px);
+}
+h3 {
+  @include fontStyle(36px, 500, 60px);
+}
