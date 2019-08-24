@@ -38,3 +38,67 @@ h2 {
   @include fontStyle(28px, 600, 40px);
   color: $gray-dark;
 }
+
+/* ---------------------- input & form ------------------------ */
+.form-section {
+  margin-bottom: 22px;
+}
+
+.form-row{
+  display:flex;
+  .form-section{
+    margin-right:10px;
+    &:last-child{
+      margin-right:0;
+    }
+  }
+}
+
+label {
+  @include fontStyle(14px, 400, 15px);
+  color: $gray-mind;
+}
+input,
+select {
+  box-sizing: border-box;
+  @include size(100%, 48px);
+  padding: 0 18px;
+  transition:0.5s;
+}
+
+textarea {
+  padding: 18px;
+  width: 100%;
+}
+
+input,
+textarea,
+select {
+  margin-top: 6px;
+  @include fontStyle(17px, 400, 17px);
+  border: 1px solid $bluegray-light;
+  background-color: #fff;
+  border-radius: 4px;
+
+  &:focus {
+    border: 1px solid $primary;
+  }
+  &::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: $gray-shallow;
+    opacity: 1; /* Firefox */
+    font-weight: 400;
+  }
+
+  &::-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: $gray-shallow;
+    font-weight: 400;
+  }
+
+  &::-ms-input-placeholder {
+    /* Microsoft Edge */
+    color: $gray-shallow;
+    font-weight: 400;
+  }
+}

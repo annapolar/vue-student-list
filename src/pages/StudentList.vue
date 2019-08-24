@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="ation-right">
-        <button>
+        <button @click="showModal = true">
           <ion-icon name="add"></ion-icon>Add Student
         </button>
       </div>
@@ -97,16 +97,61 @@
         </div>
       </div>
     </div>
+    <!-- ============== Dialog (Add & Edit Student)  ================ -->
+    <Dialog v-if="showModal" v-bind="dialogScheme" @closeModal="showModal = false">
+      <div slot="body">
+        <div class="dialog-wrap">
+          <div class="dialog-title">Student Information</div>
+          <div class="form-row">
+            <div class="form-section">
+              <label for="first_name">First Name</label>
+              <input type="text" id="first_name" v-model="tempStudent.firstName" />
+            </div>
+            <div class="form-section">
+              <label for="last_name">Last Name</label>
+              <input type="text" id="last_name" v-model="tempStudent.lastName" />
+            </div>
+          </div>
+          <div class="form-section">
+            <label for="student_id">Student ID</label>
+            <input type="text" id="student_id" v-model="tempStudent.studentId" placeholder="100001" />
+          </div>
+
+          <div class="form-section">
+            <label for="phone_number">Phone Number</label>
+            <input
+              type="text"
+              id="phone_number"
+              v-model="tempStudent.phone"
+              placeholder="403123456"
+            />
+          </div>
+          <label for="status">Status</label>
+          <select id="status" v-model="tempStudent.status">
+            <option value="null" disabled>Please select status</option>
+            <option value="Active">Active</option>
+            <option value="Delinquent">Delinquent</option>
+            <option value="Dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
 <script>
 import StudentCard from "../components/StudentCard.vue";
+import Dialog from "../components/Dialog.vue";
 
 export default {
-  components: { StudentCard },
+  components: { StudentCard, Dialog },
   data() {
     return {
+      showModal: false,
+      dialogScheme: {
+        maxWidth: 700
+      },
+      tempStudent: {},
       studentList: [
         {
           firstName: "Anna",
@@ -221,7 +266,7 @@ export default {
         letter-spacing: 1px;
         display: flex;
         justify-content: center;
-        border-radius: 4px;
+        border-radius: 2px;
         font-size: 15px;
         transition: 0.5s;
 
@@ -309,6 +354,13 @@ export default {
       .zone-body {
         padding: 0 20px 80px;
       }
+    }
+  }
+  .dialog-wrap {
+    .dialog-title {
+      @include fontStyle(24px, 400, 34px);
+      text-align: center;
+      margin-bottom: 30px;
     }
   }
 }
