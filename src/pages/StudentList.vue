@@ -37,8 +37,8 @@
             :key="student.id"
             :firstName="student.firstName"
             :lastName="student.lastName"
-            :id="student.id"
-            :phone="student.phone"
+            :id="student.studentId"
+            :phone="student.phoneNumber"
             :status="student.status"
             :initial="student.firstName.charAt(0)"
           />
@@ -63,8 +63,8 @@
             :key="student.id"
             :firstName="student.firstName"
             :lastName="student.lastName"
-            :id="student.id"
-            :phone="student.phone"
+            :id="student.studentId"
+            :phone="student.phoneNumber"
             :status="student.status"
             :initial="student.firstName.charAt(0)"
           />
@@ -89,8 +89,8 @@
             :key="student.id"
             :firstName="student.firstName"
             :lastName="student.lastName"
-            :id="student.id"
-            :phone="student.phone"
+            :id="student.studentId"
+            :phone="student.phoneNumber"
             :status="student.status"
             :initial="student.firstName.charAt(0)"
           />
@@ -98,7 +98,12 @@
       </div>
     </div>
     <!-- ============== Dialog (Add & Edit Student)  ================ -->
-    <Dialog v-if="showModal" v-bind="dialogScheme" @closeModal="showModal = false">
+    <Dialog
+      v-if="showModal"
+      v-bind="dialogScheme"
+      @closeModal="showModal = false"
+      @confirmModal="updateStudent"
+    >
       <div slot="body">
         <div class="dialog-wrap">
           <div class="dialog-title">Student Information</div>
@@ -114,7 +119,12 @@
           </div>
           <div class="form-section">
             <label for="student_id">Student ID</label>
-            <input type="text" id="student_id" v-model="tempStudent.studentId" placeholder="100001" />
+            <input
+              type="text"
+              id="student_id"
+              v-model.number="tempStudent.studentId"
+              placeholder="100001"
+            />
           </div>
 
           <div class="form-section">
@@ -122,7 +132,7 @@
             <input
               type="text"
               id="phone_number"
-              v-model="tempStudent.phone"
+              v-model.number="tempStudent.phoneNumber"
               placeholder="403123456"
             />
           </div>
@@ -142,6 +152,7 @@
 <script>
 import StudentCard from "../components/StudentCard.vue";
 import Dialog from "../components/Dialog.vue";
+import db from "@/database";
 
 export default {
   components: { StudentCard, Dialog },
@@ -152,55 +163,37 @@ export default {
         maxWidth: 700
       },
       tempStudent: {},
-      studentList: [
-        {
-          firstName: "Anna",
-          lastName: "Huang",
-          id: 100001,
-          phone: 403307240,
-          status: "active"
-        },
-        {
-          firstName: "Hashim",
-          lastName: "Briscam",
-          id: 100002,
-          phone: 4033072982,
-          status: "active"
-        },
-        {
-          firstName: "Chakrika",
-          lastName: "Joyanto",
-          id: 100004,
-          phone: 4033072210,
-          status: "dropped"
-        },
-        {
-          firstName: "Bernarr",
-          lastName: "Dominik",
-          id: 100005,
-          phone: 4033072653,
-          status: "delinquent"
-        },
-        {
-          firstName: "Sukhbirpal",
-          lastName: "Dhalan",
-          id: 100006,
-          phone: 4033077209,
-          status: "delinquent"
-        }
-      ]
+      students: []
     };
   },
   computed: {
     activeStudent() {
-      return this.studentList.filter(student => student.status == "active");
+      return this.students.filter(student => student.status == "Active");
     },
     delinquentStudent() {
-      return this.studentList.filter(student => student.status == "delinquent");
+      return this.students.filter(student => student.status == "Delinquent");
     },
     droppedStudent() {
-      return this.studentList.filter(student => student.status == "dropped");
+      return this.students.filter(student => student.status == "Dropped");
     }
+  },
+  methods: {
+    updateStudent() {
+      if (this.tempStudent) {
+        db.collection("students")
+          .add(this.tempStudent)
+          .then(() => {
+            this.tempStudent = {};
+            this.showModal = false;
+          })
+          .catch(() => {});
+      }
+    }
+  },
+  firestore() {
+    return {
+      students: db.collection("students")
+    };
   }
 };
 </script>
