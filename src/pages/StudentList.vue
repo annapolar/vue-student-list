@@ -32,19 +32,16 @@
           </div>
         </div>
         <div class="zone-body">
-          <div class="student-card" v-for="student in studentList" :key="student.id">
-            <div class="student-avatar">A</div>
-            <div class="student-info">
-              <div class="student-name">{{student.firstName}} {{student.lastName}}</div>
-              <div class="student-detail">
-                <div class="student-id">{{student.id}}</div>
-                <div class="student-phone">
-                  <ion-icon name="call"></ion-icon>
-                  {{student.phone}}
-                </div>
-              </div>
-            </div>
-          </div>
+          <StudentCard
+            v-for="student in activeStudent"
+            :key="student.id"
+            :firstName="student.firstName"
+            :lastName="student.lastName"
+            :id="student.id"
+            :phone="student.phone"
+            :status="student.status"
+            :initial="student.firstName.charAt(0)"
+          />
         </div>
       </div>
       <div class="student-board">
@@ -60,6 +57,18 @@
             </div>
           </div>
         </div>
+        <div class="zone-body">
+          <StudentCard
+            v-for="student in delinquentStudent"
+            :key="student.id"
+            :firstName="student.firstName"
+            :lastName="student.lastName"
+            :id="student.id"
+            :phone="student.phone"
+            :status="student.status"
+            :initial="student.firstName.charAt(0)"
+          />
+        </div>
       </div>
       <div class="student-board">
         <div class="zone-head">
@@ -74,39 +83,79 @@
             </div>
           </div>
         </div>
+        <div class="zone-body">
+          <StudentCard
+            v-for="student in droppedStudent"
+            :key="student.id"
+            :firstName="student.firstName"
+            :lastName="student.lastName"
+            :id="student.id"
+            :phone="student.phone"
+            :status="student.status"
+            :initial="student.firstName.charAt(0)"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import StudentCard from "../components/StudentCard.vue";
+
 export default {
+  components: { StudentCard },
   data() {
     return {
       studentList: [
         {
           firstName: "Anna",
           lastName: "Huang",
-          id: "100001",
-          phone: "4033072408",
+          id: 100001,
+          phone: 403307240,
           status: "active"
         },
         {
           firstName: "Hashim",
           lastName: "Briscam",
-          id: "100002",
-          phone: "4033072982",
+          id: 100002,
+          phone: 4033072982,
           status: "active"
         },
         {
           firstName: "Chakrika",
           lastName: "Joyanto",
-          id: "100003",
-          phone: "4033072210",
-          status: "active"
+          id: 100004,
+          phone: 4033072210,
+          status: "dropped"
+        },
+        {
+          firstName: "Bernarr",
+          lastName: "Dominik",
+          id: 100005,
+          phone: 4033072653,
+          status: "delinquent"
+        },
+        {
+          firstName: "Sukhbirpal",
+          lastName: "Dhalan",
+          id: 100006,
+          phone: 4033077209,
+          status: "delinquent"
         }
       ]
     };
+  },
+  computed: {
+    activeStudent() {
+      return this.studentList.filter(student => student.status == "active");
+    },
+    delinquentStudent() {
+      return this.studentList.filter(student => student.status == "delinquent");
+    },
+    droppedStudent() {
+      return this.studentList.filter(student => student.status == "dropped");
+    }
   }
 };
 </script>
@@ -114,7 +163,7 @@ export default {
 <style lang="scss" scoped>
 .student-list-wrap {
   max-width: 1440px;
-  margin:0 auto;
+  margin: 0 auto;
 
   .page-title {
     padding: 50px 50px 20px;
@@ -142,6 +191,13 @@ export default {
             border: 1px solid $gray-shallow;
             @include flexCenter;
             cursor: pointer;
+            transition: 0.5s;
+
+            &:hover {
+              background-color: $primary-light;
+              border: 1px solid $primary-light;
+              color: #fff;
+            }
 
             &:nth-child(n) {
               margin-left: -1px;
@@ -158,7 +214,7 @@ export default {
     .ation-right {
       button {
         height: 45px;
-        padding: 0 25px;
+        padding: 0 18px;
         background-color: $primary;
         border: none;
         color: #fff;
@@ -167,6 +223,11 @@ export default {
         justify-content: center;
         border-radius: 4px;
         font-size: 15px;
+        transition: 0.5s;
+
+        &:hover {
+          background-color: $primary-light;
+        }
 
         ion-icon {
           font-size: 18px;
@@ -198,7 +259,7 @@ export default {
 
         .zone-head-left {
           span {
-            @include fontStyle(18px, 500, 22px);
+            @include fontStyle(16px, 500, 22px);
             color: $gray-mind;
             &.active {
               &:before {
@@ -247,62 +308,6 @@ export default {
       }
       .zone-body {
         padding: 0 20px 80px;
-
-        .student-card {
-          margin: 0 auto;
-          max-width: 400px;
-          min-height: 90px;
-          border-radius: 8px;
-          border: 1px solid #e2eaec;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
-          position: relative;
-          margin-bottom: 12px;
-
-          &:after {
-            content: "";
-            display: block;
-            @include size(8px, 100px);
-            background-color: $green;
-            position: absolute;
-            top: 0;
-            right: 0;
-          }
-
-          .student-avatar {
-            @include size(52px);
-            @include flexCenter;
-            border-radius: 50%;
-            color: $avatar-01;
-            background-color: rgba($avatar-01, 0.1);
-            margin: 0 25px;
-            text-transform: uppercase;
-          }
-          .student-info {
-            .student-name {
-              @include fontStyle(18px, 600, 25px);
-            }
-            .student-detail {
-              display: flex;
-              margin-top: 5px;
-
-              .student-id {
-                @include fontStyle(14px, 300, 20px);
-                margin-right: 25px;
-              }
-              .student-phone {
-                display: flex;
-                align-items: center;
-                @include fontStyle(14px, 300, 20px);
-                color: $bluegray;
-                ion-icon {
-                  margin-right: 4px;
-                }
-              }
-            }
-          }
-        }
       }
     }
   }
