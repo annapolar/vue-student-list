@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="ation-right">
-        <button @click="showModal = true">
+        <button @click="openDialog(true)">
           <ion-icon name="add"></ion-icon>Add Student
         </button>
       </div>
@@ -41,6 +41,7 @@
             :phone="student.phoneNumber"
             :status="student.status"
             :initial="student.firstName.charAt(0)"
+            @editInfo="editStudent(student)"
           />
         </div>
       </div>
@@ -67,6 +68,7 @@
             :phone="student.phoneNumber"
             :status="student.status"
             :initial="student.firstName.charAt(0)"
+            @editInfo="editStudent(student)"
           />
         </div>
       </div>
@@ -93,6 +95,7 @@
             :phone="student.phoneNumber"
             :status="student.status"
             :initial="student.firstName.charAt(0)"
+            @editInfo="editStudent(student)"
           />
         </div>
       </div>
@@ -163,7 +166,9 @@ export default {
         maxWidth: 700
       },
       tempStudent: {},
-      students: []
+      students: [],
+      isNew: false,
+      studentDataID: ""
     };
   },
   computed: {
@@ -178,8 +183,19 @@ export default {
     }
   },
   methods: {
+    openDialog(isNew, data) {
+      if (isNew) {
+        this.tempStudent = {};
+        this.isNew = true;
+      } else {
+        this.tempStudent = Object.assign({}, data);
+        this.isNew = false;
+        this.studentDataID = data.id;
+      }
+      this.showModal = true;
+    },
     updateStudent() {
-      if (this.tempStudent) {
+      if (this.isNew) {
         db.collection("students")
           .add(this.tempStudent)
           .then(() => {
@@ -187,7 +203,21 @@ export default {
             this.showModal = false;
           })
           .catch(() => {});
+      } else {
+        let student_Object = db.collection("students").doc(this.studentDataID);
+        const ID = student_Object.id;
+        db.collection("students")
+          .doc(ID)
+          .update(this.tempStudent)
+          .then(() => {
+            this.tempStudent = {};
+            this.showModal = false;
+          })
+          .catch(() => {});
       }
+    },
+    editStudent(student) {
+      this.openDialog(false, student);
     }
   },
   firestore() {

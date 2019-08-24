@@ -11,6 +11,11 @@
         </div>
       </div>
     </div>
+    <div class="actions">
+      <div class="edit-student" @click="$emit('editInfo')">
+        <ion-icon name="create"></ion-icon>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -149,6 +154,31 @@ export default {
         ion-icon {
           margin-right: 4px;
         }
+      }
+    }
+  }
+  .actions {
+    position: absolute;
+    right: 20px;
+
+    .edit-student {
+      @include size(28px);
+      @include flexCenter;
+      border: 1px solid $bluegray-shallow;
+      border-radius: 4px;
+      transition: 0.5s;
+
+      &:hover {
+        background-color: $primary;
+        border: 1px solid $primary;
+        ion-icon {
+          color: #fff;
+        }
+      }
+
+      ion-icon {
+        color: $bluegray;
+        font-size: 16px;
       }
     }
   }
