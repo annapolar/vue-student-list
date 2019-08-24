@@ -8,7 +8,7 @@ body {
   height: 100%;
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
-  background-color: #F8F9F9;
+  background-color: #f8f9f9;
 }
 
 /* ---------------------- Mixin ------------------------ */
@@ -35,8 +35,6 @@ body {
 
 /* ---------------------- Typograph ------------------------ */
 h2 {
-  @include fontStyle(38px, 400, 56px);
-}
-h3 {
-  @include fontStyle(36px, 500, 60px);
+  @include fontStyle(28px, 600, 40px);
+  color: $gray-dark;
 }
