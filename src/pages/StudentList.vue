@@ -34,15 +34,16 @@
         <div class="zone-body">
           <draggable
             class="dragArea list-group"
-            :list="studentsNewOrder"
+            :list="activeStudent"
             :clone="clone"
             :group="{ name: 'people', pull: pullFunction }"
             @start="start"
-            @end="updateOrder"
+            @add="(e) => onAdd(e, 'Active')"
           >
             <StudentCard
               v-for="student in activeStudent"
               :key="student.id"
+              :id="student.id"
               :firstName="student.firstName"
               :lastName="student.lastName"
               :studentId="student.studentId"
@@ -70,15 +71,16 @@
         <div class="zone-body">
           <draggable
             class="dragArea list-group"
-            :list="studentsNewOrder"
+            :list="delinquentStudent"
             :clone="clone"
             :group="{ name: 'people', pull: pullFunction }"
             @start="start"
-            @end="updateOrder"
+            @add="(e) => onAdd(e, 'Delinquent')"
           >
             <StudentCard
               v-for="student in delinquentStudent"
               :key="student.id"
+              :id="student.id"
               :firstName="student.firstName"
               :lastName="student.lastName"
               :studentId="student.studentId"
@@ -106,15 +108,16 @@
         <div class="zone-body">
           <draggable
             class="dragArea list-group"
-            :list="studentsNewOrder"
+            :list="droppedStudent"
             :clone="clone"
             :group="{ name: 'people', pull: pullFunction }"
+            @add="(e) => onAdd(e, 'Dropped')"
             @start="start"
-            @end="updateOrder"
           >
             <StudentCard
               v-for="student in droppedStudent"
               :key="student.id"
+              :id="student.id"
               :firstName="student.firstName"
               :lastName="student.lastName"
               :studentId="student.studentId"
@@ -225,12 +228,12 @@ export default {
       this.showModal = true;
     },
     updateStudent() {
+      this.showModal = false;
       if (this.isNew) {
         db.collection("students")
           .add(this.tempStudent)
           .then(() => {
             this.tempStudent = {};
-            this.showModal = false;
           })
           .catch(() => {});
       } else {
@@ -241,17 +244,22 @@ export default {
           .update(this.tempStudent)
           .then(() => {
             this.tempStudent = {};
-            this.showModal = false;
           })
           .catch(() => {});
       }
+    },
+    newUpdateStudnent(id, student) {
+      console.log(student);
+      db.collection("students")
+        .doc(id)
+        .update(student)
+        .catch(() => {});
     },
     editStudent(student) {
       this.openDialog(false, student);
     },
 
-    // ----- drag & drop -----
-
+    // -------- drag & drop --------
     clone({ name }) {
       let idGlobal = 8;
       return { name, id: idGlobal++ };
@@ -262,8 +270,15 @@ export default {
     start({ originalEvent }) {
       this.controlOnStart = originalEvent.ctrlKey;
     },
-    updateOrder() {
-      console.log("change");
+    onAdd(e, status) {
+      // console.log(e);
+      // console.log("onAdd", e.item.id, status);
+      const student = this.students.find(student => student.id === e.item.id);
+
+      if (student) {
+        const updatedStudent = Object.assign({}, student, { status });
+        this.newUpdateStudnent(student.id, updatedStudent);
+      }
     }
   },
   firestore() {
