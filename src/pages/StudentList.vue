@@ -6,8 +6,8 @@
         <div class="show-students">
           <div class="student-key">Show Students:</div>
           <div class="student-qty">
-            <span class="active">10</span>
-            <span>20</span>
+            <span :class="tenItemsPerPage ? 'active':''" @click="tenItems">10</span>
+            <span :class="twentyItemsPerPage ? 'active':''" @click="twentyItems">20</span>
           </div>
         </div>
       </div>
@@ -24,7 +24,7 @@
             <span class="active">Active</span>
           </div>
           <div class="zone-head-right">
-            {{activeShowPage * pageSize}} - {{(activeShowPage + 1) * pageSize}} of {{_activeStudent.length}}
+            {{activeShowPage * pageSize + 1 }} - {{(activeShowPage + 1) * pageSize}} of {{_activeStudent.length}}
             <div class="arrows">
               <ion-icon name="arrow-dropleft" @click="activeShowPage > 0 && prev('activeShowPage')"></ion-icon>
               <ion-icon
@@ -64,7 +64,7 @@
             <span class="delinquent">Delinquent</span>
           </div>
           <div class="zone-head-right">
-            {{delinquentShowPage * pageSize}} - {{(delinquentShowPage + 1) * pageSize}} of {{_delinquentStudent.length}}
+            {{delinquentShowPage * pageSize + 1 }} - {{(delinquentShowPage + 1) * pageSize}} of {{_delinquentStudent.length}}
             <div class="arrows">
               <ion-icon
                 name="arrow-dropleft"
@@ -107,9 +107,12 @@
             <span class="dropped">Dropped</span>
           </div>
           <div class="zone-head-right">
-            {{droppedShowPage * pageSize}} - {{(droppedShowPage + 1) * pageSize}} of {{_droppedStudent.length}}
+            {{droppedShowPage * pageSize + 1 }} - {{(droppedShowPage + 1) * pageSize}} of {{_droppedStudent.length}}
             <div class="arrows">
-              <ion-icon name="arrow-dropleft" @click="droppedShowPage > 0 && prev('droppedShowPage')"></ion-icon>
+              <ion-icon
+                name="arrow-dropleft"
+                @click="droppedShowPage > 0 && prev('droppedShowPage')"
+              ></ion-icon>
               <ion-icon
                 name="arrow-dropright"
                 @click="droppedShowPage < maxDroppedShowPage && next('droppedShowPage')"
@@ -216,7 +219,9 @@ export default {
       pageSize: 10,
       activeShowPage: 0,
       delinquentShowPage: 0,
-      droppedShowPage: 0
+      droppedShowPage: 0,
+      tenItemsPerPage: true,
+      twentyItemsPerPage: false
     };
   },
   computed: {
@@ -329,6 +334,24 @@ export default {
         const updatedStudent = Object.assign({}, student, { status });
         this.newUpdateStudnent(student.id, updatedStudent);
       }
+    },
+
+    // ----- 10 or 20 items per page -----
+    twentyItems() {
+      this.pageSize = 20;
+      this.activeShowPage = 0;
+      this.delinquentShowPage = 0;
+      this.droppedShowPage = 0;
+      this.twentyItemsPerPage = true;
+      this.tenItemsPerPage = false;
+    },
+    tenItems() {
+      this.pageSize = 10;
+      this.activeShowPage = 0;
+      this.delinquentShowPage = 0;
+      this.droppedShowPage = 0;
+      this.tenItemsPerPage = true;
+      this.twentyItemsPerPage = false;
     }
   },
   firestore() {
