@@ -24,10 +24,13 @@
             <span class="active">Active</span>
           </div>
           <div class="zone-head-right">
-            {{activeStudent.length}}
+            {{activeShowPage * pageSize}} - {{(activeShowPage + 1) * pageSize}} of {{_activeStudent.length}}
             <div class="arrows">
-              <ion-icon name="arrow-dropleft"></ion-icon>
-              <ion-icon name="arrow-dropright" class="active"></ion-icon>
+              <ion-icon name="arrow-dropleft" @click="activeShowPage > 0 && prev('activeShowPage')"></ion-icon>
+              <ion-icon
+                name="arrow-dropright"
+                @click="activeShowPage < maxActiveShowPage && next('activeShowPage')"
+              ></ion-icon>
             </div>
           </div>
         </div>
@@ -61,10 +64,16 @@
             <span class="delinquent">Delinquent</span>
           </div>
           <div class="zone-head-right">
-            1-10 of 30
+            {{delinquentShowPage * pageSize}} - {{(delinquentShowPage + 1) * pageSize}} of {{_delinquentStudent.length}}
             <div class="arrows">
-              <ion-icon name="arrow-dropleft"></ion-icon>
-              <ion-icon name="arrow-dropright" class="active"></ion-icon>
+              <ion-icon
+                name="arrow-dropleft"
+                @click="delinquentShowPage > 0 && prev('delinquentShowPage')"
+              ></ion-icon>
+              <ion-icon
+                name="arrow-dropright"
+                @click="delinquentShowPage < maxDelinquentShowPage && next('delinquentShowPage')"
+              ></ion-icon>
             </div>
           </div>
         </div>
@@ -98,10 +107,13 @@
             <span class="dropped">Dropped</span>
           </div>
           <div class="zone-head-right">
-            1-10 of 30
+            {{droppedShowPage * pageSize}} - {{(droppedShowPage + 1) * pageSize}} of {{_droppedStudent.length}}
             <div class="arrows">
-              <ion-icon name="arrow-dropleft"></ion-icon>
-              <ion-icon name="arrow-dropright" class="active"></ion-icon>
+              <ion-icon name="arrow-dropleft" @click="droppedShowPage > 0 && prev('droppedShowPage')"></ion-icon>
+              <ion-icon
+                name="arrow-dropright"
+                @click="droppedShowPage < maxDroppedShowPage && next('droppedShowPage')"
+              ></ion-icon>
             </div>
           </div>
         </div>
@@ -201,18 +213,47 @@ export default {
       isNew: false,
       studentDataID: "",
       controlOnStart: true,
-      studentsNewOrder: this.students
+      pageSize: 10,
+      activeShowPage: 0,
+      delinquentShowPage: 0,
+      droppedShowPage: 0
     };
   },
   computed: {
-    activeStudent() {
+    // ---- active students ----
+    _activeStudent() {
       return this.students.filter(student => student.status == "Active");
     },
-    delinquentStudent() {
+    activeStudent() {
+      const start = this.activeShowPage * this.pageSize;
+      return this._activeStudent.slice(start, start + this.pageSize);
+    },
+    maxActiveShowPage() {
+      return Math.floor(this._activeStudent.length / this.pageSize);
+    },
+
+    // ---- delinquent students ----
+    _delinquentStudent() {
       return this.students.filter(student => student.status == "Delinquent");
     },
-    droppedStudent() {
+    delinquentStudent() {
+      const start = this.delinquentShowPage * this.pageSize;
+      return this._delinquentStudent.slice(start, start + this.pageSize);
+    },
+    maxDelinquentShowPage() {
+      return Math.floor(this._delinquentStudent.length / this.pageSize);
+    },
+
+    // ---- dropped students ----
+    _droppedStudent() {
       return this.students.filter(student => student.status == "Dropped");
+    },
+    droppedStudent() {
+      const start = this.droppedShowPage * this.pageSize;
+      return this._droppedStudent.slice(start, start + this.pageSize);
+    },
+    maxDroppedShowPage() {
+      return Math.floor(this._droppedStudent.length / this.pageSize);
     }
   },
   methods: {
@@ -249,7 +290,6 @@ export default {
       }
     },
     newUpdateStudnent(id, student) {
-      console.log(student);
       db.collection("students")
         .doc(id)
         .update(student)
@@ -259,7 +299,17 @@ export default {
       this.openDialog(false, student);
     },
 
-    // -------- drag & drop --------
+    prev(category) {
+      console.log(category);
+      this[category] -= 1;
+    },
+
+    next(category) {
+      console.log(category);
+      this[category] += 1;
+    },
+
+    // ----- drag & drop -----
     clone({ name }) {
       let idGlobal = 8;
       return { name, id: idGlobal++ };
