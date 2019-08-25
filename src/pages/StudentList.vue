@@ -24,7 +24,7 @@
             <span class="active">Active</span>
           </div>
           <div class="zone-head-right">
-            1-10 of 30
+            {{activeStudent.length}}
             <div class="arrows">
               <ion-icon name="arrow-dropleft"></ion-icon>
               <ion-icon name="arrow-dropright" class="active"></ion-icon>
@@ -32,17 +32,26 @@
           </div>
         </div>
         <div class="zone-body">
-          <StudentCard
-            v-for="student in activeStudent"
-            :key="student.id"
-            :firstName="student.firstName"
-            :lastName="student.lastName"
-            :id="student.studentId"
-            :phone="student.phoneNumber"
-            :status="student.status"
-            :initial="student.firstName.charAt(0)"
-            @editInfo="editStudent(student)"
-          />
+          <draggable
+            class="dragArea list-group"
+            :list="studentsNewOrder"
+            :clone="clone"
+            :group="{ name: 'people', pull: pullFunction }"
+            @start="start"
+            @end="updateOrder"
+          >
+            <StudentCard
+              v-for="student in activeStudent"
+              :key="student.id"
+              :firstName="student.firstName"
+              :lastName="student.lastName"
+              :studentId="student.studentId"
+              :phone="student.phoneNumber"
+              :status="student.status"
+              :initial="student.firstName.charAt(0)"
+              @editInfo="editStudent(student)"
+            />
+          </draggable>
         </div>
       </div>
       <div class="student-board">
@@ -59,17 +68,26 @@
           </div>
         </div>
         <div class="zone-body">
-          <StudentCard
-            v-for="student in delinquentStudent"
-            :key="student.id"
-            :firstName="student.firstName"
-            :lastName="student.lastName"
-            :id="student.studentId"
-            :phone="student.phoneNumber"
-            :status="student.status"
-            :initial="student.firstName.charAt(0)"
-            @editInfo="editStudent(student)"
-          />
+          <draggable
+            class="dragArea list-group"
+            :list="studentsNewOrder"
+            :clone="clone"
+            :group="{ name: 'people', pull: pullFunction }"
+            @start="start"
+            @end="updateOrder"
+          >
+            <StudentCard
+              v-for="student in delinquentStudent"
+              :key="student.id"
+              :firstName="student.firstName"
+              :lastName="student.lastName"
+              :studentId="student.studentId"
+              :phone="student.phoneNumber"
+              :status="student.status"
+              :initial="student.firstName.charAt(0)"
+              @editInfo="editStudent(student)"
+            />
+          </draggable>
         </div>
       </div>
       <div class="student-board">
@@ -86,17 +104,26 @@
           </div>
         </div>
         <div class="zone-body">
-          <StudentCard
-            v-for="student in droppedStudent"
-            :key="student.id"
-            :firstName="student.firstName"
-            :lastName="student.lastName"
-            :id="student.studentId"
-            :phone="student.phoneNumber"
-            :status="student.status"
-            :initial="student.firstName.charAt(0)"
-            @editInfo="editStudent(student)"
-          />
+          <draggable
+            class="dragArea list-group"
+            :list="studentsNewOrder"
+            :clone="clone"
+            :group="{ name: 'people', pull: pullFunction }"
+            @start="start"
+            @end="updateOrder"
+          >
+            <StudentCard
+              v-for="student in droppedStudent"
+              :key="student.id"
+              :firstName="student.firstName"
+              :lastName="student.lastName"
+              :studentId="student.studentId"
+              :phone="student.phoneNumber"
+              :status="student.status"
+              :initial="student.firstName.charAt(0)"
+              @editInfo="editStudent(student)"
+            />
+          </draggable>
         </div>
       </div>
     </div>
@@ -156,9 +183,10 @@
 import StudentCard from "../components/StudentCard.vue";
 import Dialog from "../components/Dialog.vue";
 import db from "@/database";
+import draggable from "vuedraggable";
 
 export default {
-  components: { StudentCard, Dialog },
+  components: { StudentCard, Dialog, draggable },
   data() {
     return {
       showModal: false,
@@ -168,7 +196,9 @@ export default {
       tempStudent: {},
       students: [],
       isNew: false,
-      studentDataID: ""
+      studentDataID: "",
+      controlOnStart: true,
+      studentsNewOrder: this.students
     };
   },
   computed: {
@@ -218,6 +248,22 @@ export default {
     },
     editStudent(student) {
       this.openDialog(false, student);
+    },
+
+    // ----- drag & drop -----
+
+    clone({ name }) {
+      let idGlobal = 8;
+      return { name, id: idGlobal++ };
+    },
+    pullFunction() {
+      return this.controlOnStart ? "clone" : true;
+    },
+    start({ originalEvent }) {
+      this.controlOnStart = originalEvent.ctrlKey;
+    },
+    updateOrder() {
+      console.log("change");
     }
   },
   firestore() {

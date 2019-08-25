@@ -4,7 +4,7 @@
     <div class="student-info">
       <div class="student-name">{{firstName}} {{lastName}}</div>
       <div class="student-detail">
-        <div class="student-id">{{id}}</div>
+        <div class="student-id">{{studentId}}</div>
         <div class="student-phone">
           <ion-icon name="call"></ion-icon>
           {{phone}}
@@ -24,7 +24,7 @@ export default {
   props: {
     firstName: { type: String, default: "" },
     lastName: { type: String, default: "" },
-    id: { type: Number, default: undefined },
+    studentId: { type: Number, default: undefined },
     phone: { type: Number, default: undefined },
     status: { type: String, default: "active" },
     initial: { type: String, default: "" }
@@ -32,11 +32,11 @@ export default {
   computed: {
     cardStyle() {
       switch (this.status) {
-        case "active":
+        case "Active":
           return "active";
-        case "delinquent":
+        case "Delinquent":
           return "delinquent";
-        case "dropped":
+        case "Dropped":
           return "dropped";
       }
     },
