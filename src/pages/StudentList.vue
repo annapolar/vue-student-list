@@ -1,35 +1,40 @@
 <template>
   <div class="student-list-wrap">
-    <h2 class="page-title">Student List</h2>
-    <div class="page-actions">
-      <div class="ation-left">
-        <div class="show-students">
-          <div class="student-key">Show Students:</div>
+    <div class="page-head-wrap">
+      <div class="page-head">
+        <div class="page-title">Student List</div>
+        <div class="page-actions">
           <div class="student-qty">
-            <span :class="tenItemsPerPage ? 'active':''" @click="tenItems">10</span>
-            <span :class="twentyItemsPerPage ? 'active':''" @click="twentyItems">20</span>
+            Show
+            <span :class="pageSize === 10 ? 'active':''" @click="tenItems">10</span>
+            <span :class="pageSize === 20 ? 'active':''" @click="twentyItems">20</span>
           </div>
+          <button @click="openDialog(true)">
+            <ion-icon name="add"></ion-icon>Add Student
+          </button>
         </div>
-      </div>
-      <div class="ation-right">
-        <button @click="openDialog(true)">
-          <ion-icon name="add"></ion-icon>Add Student
-        </button>
       </div>
     </div>
     <div class="student-zone">
-      <div class="student-board">
+      <div
+        class="student-board"
+        @click="boardOpen = 'activeStudent'"
+        :class="boardOpen === 'activeStudent'?'active':''"
+      >
         <div class="zone-head">
           <div class="zone-head-left">
-            <span class="active">Active</span>
+            <span>Active</span>
           </div>
           <div class="zone-head-right">
-            {{activeShowPage * pageSize + 1 }} - {{(activeShowPage + 1) * pageSize}} of {{_activeStudent.length}}
+            {{currentActivePage * pageSize + 1 }} - {{ lastActiveIndex }} of {{_activeStudent.length}}
             <div class="arrows">
-              <ion-icon name="arrow-dropleft" @click="activeShowPage > 0 && prev('activeShowPage')"></ion-icon>
+              <ion-icon
+                name="arrow-dropleft"
+                @click="currentActivePage > 0 && prev('currentActivePage')"
+              ></ion-icon>
               <ion-icon
                 name="arrow-dropright"
-                @click="activeShowPage < maxActiveShowPage && next('activeShowPage')"
+                @click="currentActivePage < maxActivePage && next('currentActivePage')"
               ></ion-icon>
             </div>
           </div>
@@ -58,21 +63,25 @@
           </draggable>
         </div>
       </div>
-      <div class="student-board">
+      <div
+        class="student-board"
+        @click="boardOpen = 'delinquentStudent'"
+        :class="boardOpen === 'delinquentStudent'?'active':''"
+      >
         <div class="zone-head">
           <div class="zone-head-left">
-            <span class="delinquent">Delinquent</span>
+            <span>Delinquent</span>
           </div>
           <div class="zone-head-right">
-            {{delinquentShowPage * pageSize + 1 }} - {{(delinquentShowPage + 1) * pageSize}} of {{_delinquentStudent.length}}
+            {{currentDelinquentPage * pageSize + 1 }} - {{lastDelinquentIndex}} of {{_delinquentStudent.length}}
             <div class="arrows">
               <ion-icon
                 name="arrow-dropleft"
-                @click="delinquentShowPage > 0 && prev('delinquentShowPage')"
+                @click="currentDelinquentPage > 0 && prev('currentDelinquentPage')"
               ></ion-icon>
               <ion-icon
                 name="arrow-dropright"
-                @click="delinquentShowPage < maxDelinquentShowPage && next('delinquentShowPage')"
+                @click="currentDelinquentPage < maxDelinquentPage && next('currentDelinquentPage')"
               ></ion-icon>
             </div>
           </div>
@@ -101,21 +110,25 @@
           </draggable>
         </div>
       </div>
-      <div class="student-board">
+      <div
+        class="student-board"
+        @click="boardOpen = 'droppedStudent'"
+        :class="boardOpen === 'droppedStudent'?'active':''"
+      >
         <div class="zone-head">
           <div class="zone-head-left">
-            <span class="dropped">Dropped</span>
+            <span>Dropped</span>
           </div>
           <div class="zone-head-right">
-            {{droppedShowPage * pageSize + 1 }} - {{(droppedShowPage + 1) * pageSize}} of {{_droppedStudent.length}}
+            {{currentDroppedPage * pageSize + 1 }} - {{lastDroppedIndex}} of {{_droppedStudent.length}}
             <div class="arrows">
               <ion-icon
                 name="arrow-dropleft"
-                @click="droppedShowPage > 0 && prev('droppedShowPage')"
+                @click="currentDroppedPage > 0 && prev('currentDroppedPage')"
               ></ion-icon>
               <ion-icon
                 name="arrow-dropright"
-                @click="droppedShowPage < maxDroppedShowPage && next('droppedShowPage')"
+                @click="currentDroppedPage < maxDroppedPage && next('currentDroppedPage')"
               ></ion-icon>
             </div>
           </div>
@@ -217,11 +230,10 @@ export default {
       studentDataID: "",
       controlOnStart: true,
       pageSize: 10,
-      activeShowPage: 0,
-      delinquentShowPage: 0,
-      droppedShowPage: 0,
-      tenItemsPerPage: true,
-      twentyItemsPerPage: false
+      currentActivePage: 0,
+      currentDelinquentPage: 0,
+      currentDroppedPage: 0,
+      boardOpen: "activeStudent"
     };
   },
   computed: {
@@ -230,11 +242,18 @@ export default {
       return this.students.filter(student => student.status == "Active");
     },
     activeStudent() {
-      const start = this.activeShowPage * this.pageSize;
+      const start = this.currentActivePage * this.pageSize;
       return this._activeStudent.slice(start, start + this.pageSize);
     },
-    maxActiveShowPage() {
+    maxActivePage() {
       return Math.floor(this._activeStudent.length / this.pageSize);
+    },
+    lastActiveIndex() {
+      if (this.currentActivePage >= this.maxActivePage) {
+        return this._activeStudent.length;
+      } else {
+        return (this.currentActivePage + 1) * this.pageSize;
+      }
     },
 
     // ---- delinquent students ----
@@ -242,11 +261,18 @@ export default {
       return this.students.filter(student => student.status == "Delinquent");
     },
     delinquentStudent() {
-      const start = this.delinquentShowPage * this.pageSize;
+      const start = this.currentDelinquentPage * this.pageSize;
       return this._delinquentStudent.slice(start, start + this.pageSize);
     },
-    maxDelinquentShowPage() {
+    maxDelinquentPage() {
       return Math.floor(this._delinquentStudent.length / this.pageSize);
+    },
+    lastDelinquentIndex() {
+      if (this.currentDelinquentPage >= this.maxDelinquentPage) {
+        return this._delinquentStudent.length;
+      } else {
+        return (this.currentDelinquentPage + 1) * this.pageSize;
+      }
     },
 
     // ---- dropped students ----
@@ -254,11 +280,18 @@ export default {
       return this.students.filter(student => student.status == "Dropped");
     },
     droppedStudent() {
-      const start = this.droppedShowPage * this.pageSize;
+      const start = this.currentDroppedPage * this.pageSize;
       return this._droppedStudent.slice(start, start + this.pageSize);
     },
-    maxDroppedShowPage() {
+    maxDroppedPage() {
       return Math.floor(this._droppedStudent.length / this.pageSize);
+    },
+    lastDroppedIndex() {
+      if (this.currentDroppedPage >= this.maxDroppedPage) {
+        return this._droppedStudent.length;
+      } else {
+        return (this.currentDroppedPage + 1) * this.pageSize;
+      }
     }
   },
   methods: {
@@ -339,19 +372,15 @@ export default {
     // ----- 10 or 20 items per page -----
     twentyItems() {
       this.pageSize = 20;
-      this.activeShowPage = 0;
-      this.delinquentShowPage = 0;
-      this.droppedShowPage = 0;
-      this.twentyItemsPerPage = true;
-      this.tenItemsPerPage = false;
+      this.currentActivePage = 0;
+      this.currentDelinquentPage = 0;
+      this.currentDroppedPage = 0;
     },
     tenItems() {
       this.pageSize = 10;
-      this.activeShowPage = 0;
-      this.delinquentShowPage = 0;
-      this.droppedShowPage = 0;
-      this.tenItemsPerPage = true;
-      this.twentyItemsPerPage = false;
+      this.currentActivePage = 0;
+      this.currentDelinquentPage = 0;
+      this.currentDroppedPage = 0;
     }
   },
   firestore() {
@@ -364,132 +393,121 @@ export default {
 
 <style lang="scss" scoped>
 .student-list-wrap {
-  max-width: 1440px;
   margin: 0 auto;
+  padding-bottom: 80px;
 
-  .page-title {
-    padding: 50px 50px 20px;
-  }
+  .page-head-wrap {
+    background-color: $primary;
+    width: 100%;
+    min-height: 280px;
+    padding: 0 30px;
+    box-sizing: border-box;
 
-  .page-actions {
-    padding: 10px 50px 15px;
-    display: flex;
-    justify-content: space-between;
+    .page-head {
+      max-width: 1275px;
+      display: flex;
+      justify-content: space-between;
+      margin: 0 auto;
+      padding-top: 58px;
 
-    .ation-left {
-      .show-students {
+      .page-title {
+        @include fontStyle(30px, 400, 45px);
+        color: #fff;
+        letter-spacing: 0.5px;
+      }
+      .page-actions {
         display: flex;
-        align-items: center;
 
-        .student-key {
-          @include fontStyle(14px, 400, 20px);
-          margin-right: 10px;
-        }
         .student-qty {
           display: flex;
+          align-items: center;
+          font-size: 16px;
+          color: #fff;
+          margin-right: 30px;
+
           span {
-            @include size(36px);
-            background-color: #fff;
-            border: 1px solid $gray-shallow;
+            @include size(35px);
             @include flexCenter;
+            font-weight: 500;
             cursor: pointer;
             transition: 0.5s;
+            margin-left: 8px;
+            border-radius: 3px;
 
             &:hover {
-              background-color: $primary-light;
-              border: 1px solid $primary-light;
-              color: #fff;
-            }
-
-            &:nth-child(n) {
-              margin-left: -1px;
+              box-shadow: 0 0 0 1px #fff;
             }
             &.active {
-              background-color: $primary;
-              color: #fff;
-              border: 1px solid $primary;
+              box-shadow: 0 0 0 1px #fff;
             }
           }
         }
-      }
-    }
-    .ation-right {
-      button {
-        height: 45px;
-        padding: 0 18px;
-        background-color: $primary;
-        border: none;
-        color: #fff;
-        letter-spacing: 1px;
-        display: flex;
-        justify-content: center;
-        border-radius: 2px;
-        font-size: 15px;
-        transition: 0.5s;
+        button {
+          height: 45px;
+          padding: 0 18px;
+          background-color: $secondary;
+          border: none;
+          color: #fff;
+          letter-spacing: 1px;
+          display: flex;
+          justify-content: center;
+          border-radius: 4px;
+          font-size: 15px;
+          transition: 0.5s;
 
-        &:hover {
-          background-color: $primary-light;
-        }
+          &:hover {
+            background-color: $secondary-light;
+          }
 
-        ion-icon {
-          font-size: 18px;
-          margin-right: 8px;
+          ion-icon {
+            font-size: 18px;
+            margin-right: 8px;
+          }
         }
       }
     }
   }
   .student-zone {
     width: 100%;
-    background-color: #fff;
+    max-width: 1275px;
+    margin: 0 auto;
     display: flex;
+    margin-top: -120px;
+    overflow: auto;
 
     .student-board {
       border: 1px solid $bluegray-shallow;
-      width: 33.333%;
-      &:nth-child(n) {
-        margin-left: -1px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(#8494b2, 0.4);
+      margin-right: 12px;
+      padding: 20px 30px 60px;
+      overflow: hidden;
+      transition: 2s;
+      cursor: pointer;
+
+      &.active {
+        min-width: 760px;
       }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
       .zone-head {
-        @include size(100%, 80px);
-        border-bottom: 1px solid $bluegray-shallow;
+        @include size(100%, 90px);
+        min-width: 700px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 50px;
-        box-sizing: border-box;
-        margin-bottom: 30px;
 
         .zone-head-left {
           span {
-            @include fontStyle(16px, 500, 22px);
+            @include fontStyle(20px, 500, 28px);
             color: $gray-mind;
-            &.active {
-              &:before {
-                background-color: $green;
-              }
-            }
-            &.delinquent {
-              &:before {
-                background-color: $yellow;
-              }
-            }
-            &.dropped {
-              &:before {
-                background-color: $red;
-              }
-            }
-
-            &:before {
-              display: inline-block;
-              content: "";
-              @include size(10px);
-              border-radius: 50%;
-              margin-right: 12px;
-            }
           }
         }
         .zone-head-right {
-          color: $gray-light;
+          color: $gray-mind;
           @include fontStyle(15px, 300, 21px);
           display: flex;
           align-items: center;
@@ -498,7 +516,7 @@ export default {
 
             ion-icon {
               font-size: 30px;
-              color: $gray-shallow;
+              color: $gray-mind;
               cursor: pointer;
 
               &.active {
@@ -508,9 +526,6 @@ export default {
           }
         }
       }
-      .zone-body {
-        padding: 0 20px 80px;
-      }
     }
   }
   .dialog-wrap {
@@ -518,6 +533,46 @@ export default {
       @include fontStyle(24px, 400, 34px);
       text-align: center;
       margin-bottom: 30px;
+    }
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .student-list-wrap {
+    .page-head-wrap {
+      min-height: 220px;
+
+      .page-head {
+        display: block;
+        padding-top: 40px;
+
+        .page-title {
+          @include fontStyle(26px, 400, 30px);
+          margin-bottom: 30px;
+        }
+        .page-actions {
+          justify-content: flex-end;
+
+          .student-qty {
+            font-size: 13px;
+            margin-right: 15px;
+
+            span {
+              @include size(30px);
+              font-weight: 400;
+              margin-left: 4px;
+            }
+          }
+          button {
+            height: 40px;
+            padding: 0 12px;
+            font-size: 13px;
+          }
+        }
+      }
+    }
+    .student-zone {
+      margin-top: -60px;
     }
   }
 }

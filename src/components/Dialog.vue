@@ -117,7 +117,7 @@ export default {
     text-transform: uppercase;
     padding: 15px 35px;
     margin-left: 10px;
-    border-radius: 2px;
+    border-radius: 4px;
     font-size: 14px;
     transition: 0.5s;
   }
