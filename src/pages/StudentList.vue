@@ -481,12 +481,15 @@ export default {
       box-shadow: 0 2px 5px rgba(#8494b2, 0.4);
       margin-right: 12px;
       padding: 20px 30px 60px;
+      box-sizing: border-box;
       overflow: hidden;
-      transition: 2s;
       cursor: pointer;
+      min-width: 120px;
+      max-width: 120px;
+      transition: 1s;
 
       &.active {
-        min-width: 760px;
+        min-width: calc(100% - 264px);
       }
 
       &:last-child {
@@ -536,8 +539,21 @@ export default {
     }
   }
 }
+@media only screen and (max-width: 1080px) {
+  .student-list-wrap {
+    .student-zone {
+      .student-board {
+        min-width: 80px;
+        max-width: 80px;
+        &.active {
+          min-width: 860px;
+        }
+      }
+    }
+  }
+}
 
-@media only screen and (max-width: 767px) {
+@media only screen and (max-width: 600px) {
   .student-list-wrap {
     .page-head-wrap {
       min-height: 220px;

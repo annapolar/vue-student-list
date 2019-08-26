@@ -158,7 +158,7 @@ export default {
     min-width: 120px;
   }
   .student-phone {
-    min-width: 130px;
+    min-width: 150px;
   }
 
   .actions {
